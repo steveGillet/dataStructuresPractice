@@ -5,25 +5,25 @@ class Graph:
     def __init__(self):
         self.graph = {}
 
-    def addEdge(self, node, neighbor):
+    def addEdge(self, node, neighbor, weight):
         if node not in self.graph:
-            self.graph[node] = []
-        self.graph[node].append(neighbor)
+            self.graph[node] = {}
+        self.graph[node][neighbor] = weight
 
         if neighbor not in self.graph:
-            self.graph[neighbor] = []
-        self.graph[neighbor].append(node)
+            self.graph[neighbor] = {}
+        self.graph[neighbor][node] = weight
 
     def addVertex(self, node):
         if node not in self.graph:
-            self.graph[node] = []
+            self.graph[node] = {}
 
     def removeEdge(self, node, neighbor):
         if node in self.graph and neighbor in self.graph[node]:
-            self.graph[node].remove(neighbor)
+            del self.graph[node][neighbor]
         
         if neighbor in self.graph and node in self.graph[neighbor]:
-            self.graph[neighbor].remove(node)
+            del self.graph[neighbor][node]
 
 
     def removeVertex(self, node):
@@ -103,20 +103,20 @@ class DirectedGraph:
     def __init__(self):
         self.graph = {}
 
-    def addEdge(self, node, neighbor):
+    def addEdge(self, node, neighbor, weight):
         if node not in self.graph:
-            self.graph[node] = []
-        self.graph[node].append(neighbor)
+            self.graph[node] = {}
+        self.graph[node][neighbor] = weight
         if neighbor not in self.graph:
-            self.graph[neighbor] = []
+            self.graph[neighbor] = {}
 
     def addVertex(self, node):
         if node not in self.graph:
-            self.graph[node] = []
+            self.graph[node] = {}
 
     def removeEdge(self, node, neighbor):
         if neighbor in self.graph[node]:
-            self.graph[node].remove(neighbor)
+            del self.graph[node][neighbor]
 
     def removeVertex(self, node):
         if node in self.graph:
@@ -249,34 +249,86 @@ class DirectedGraph:
         
         return []
 
+    def kruskal(self):
+
+        nodeToIndex = {node: i for i, node in enumerate(self.graph)}
+
+        sortedEdges = []
+        for node, children in self.graph.items():
+            for child, weight in children.items():
+                sortedEdges.append((node,child,weight))
+
+        sortedEdges = sorted(sortedEdges, key=lambda x: x[2])
+
+        mst = {}
+
+        uf = UnionFind(len(self.graph))
+
+        edgesAdded = 0
+        for edge in sortedEdges:
+            if uf.find(nodeToIndex[edge[0]]) == uf.find(nodeToIndex[edge[1]]):
+                continue
+            else:
+                if edge[0] not in mst:
+                    mst[edge[0]] = {}
+                mst[edge[0]][edge[1]] = edge[2]
+                uf.union(nodeToIndex[edge[0]], nodeToIndex[edge[1]])
+                edgesAdded += 1
+
+            if edgesAdded > len(self.graph) - 1:
+                break
         
+        return mst
+
+class UnionFind:
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.rank = [0] * n
+
+    def find(self, data):
+        if self.parent[data] != data:
+            self.parent[data] = self.find(self.parent[data])
+        return self.parent[data]
+
+    def union(self, data1, data2):
+        parent1, parent2 = self.find(data1), self.find(data2)
+        if parent1 == parent2:
+            return
+
+        if self.rank[parent1] > self.rank[parent2]:
+            self.parent[parent2] = parent1
+        elif self.rank[parent2] > self.rank[parent1]:
+            self.parent[parent1] = parent2
+        else:
+            self.parent[parent2] = parent1
+            self.rank[parent1] += 1
     
 
 
 
 graph = Graph()
-graph.addEdge("A", "B")
-graph.addEdge("A", "C")
-graph.addEdge("C", "D")
-graph.addEdge("D", "E")
-# graph.addEdge("E", "F")
-graph.addEdge("F", "G")
+graph.addEdge("A", "B", 4)
+graph.addEdge("A", "C", 2)
+graph.addEdge("C", "D", 5)
+graph.addEdge("D", "E", 3)
+# graph.addEdge("E", "F", 1)
+graph.addEdge("F", "G", 6)
 print(graph.graph)
 
 graph.dfs("A")
 graph.bfs("A")
 
 directedGraph = DirectedGraph()
-directedGraph.addEdge("A", "B")
-directedGraph.addEdge("A", "C")
-directedGraph.addEdge("C", "D")
-directedGraph.addEdge("D", "E")
-# directedGraph.addEdge("E", "C")
-# directedGraph.addEdge("E", "F")
-directedGraph.addEdge("F", "G")
-# directedGraph.addEdge("G", "A")
-directedGraph.addEdge("G", "H")
-directedGraph.addEdge("H", "I")
+directedGraph.addEdge("A", "B", 3)
+directedGraph.addEdge("A", "C", 2)
+directedGraph.addEdge("C", "D", 1)
+directedGraph.addEdge("D", "E", 4)
+# directedGraph.addEdge("E", "C", 5)
+# directedGraph.addEdge("E", "F", 3)
+directedGraph.addEdge("F", "G", 2)
+# directedGraph.addEdge("G", "A", 4)
+directedGraph.addEdge("G", "H", 1)
+directedGraph.addEdge("H", "I", 3)
 print(directedGraph.graph)
 
 print(directedGraph.dfs("A", "G"))
@@ -288,3 +340,12 @@ print(graph.connected())
 
 print(directedGraph.acyclic())
 print(directedGraph.topologicalSort())
+
+print(directedGraph.kruskal())
+
+uf = UnionFind(5)
+uf.union(1,2)
+uf.union(3,4)
+print(uf.find(2))
+print(uf.rank)
+print(uf.parent)
