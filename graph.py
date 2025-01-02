@@ -280,6 +280,44 @@ class DirectedGraph:
         
         return mst
 
+    def dijkstra(self, start=None, end=None):
+        if self.graph:
+            if start == None:
+                start = next(iter(self.graph))
+
+            if end == None:
+                end = list(self.graph)[-1]
+
+            if start in self.graph and end in self.graph:
+                unvisited = set(self.graph)
+                visited = set()
+                distance = dict.fromkeys(self.graph, float('inf'))
+                distance[start] = 0
+                # print(distance)
+
+                while unvisited and [x for x in {key: distance[key] for key in unvisited}.items() if x[1] < float('inf')]:
+                    currentNode = min({key: distance[key] for key in unvisited})
+
+                    unvisited.remove(currentNode)
+                    visited.add(currentNode)
+
+                    for neighbor in self.graph[currentNode]:
+                        if distance[neighbor] > distance[currentNode] + self.graph[currentNode][neighbor]:
+                            distance[neighbor] = distance[currentNode] + self.graph[currentNode][neighbor]
+                
+                print(visited)
+                path = []
+                currentNode = start
+                while currentNode is not end:
+                    path.append(currentNode)
+                    print(self.graph[currentNode].keys())
+                    currentNode = [x for x in self.graph[currentNode].keys() if x in visited][0]
+                    print(currentNode)
+
+                return path
+
+
+
 class UnionFind:
     def __init__(self, n):
         self.parent = list(range(n))
@@ -349,3 +387,5 @@ uf.union(3,4)
 print(uf.find(2))
 print(uf.rank)
 print(uf.parent)
+
+print(directedGraph.dijkstra())
