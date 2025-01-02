@@ -279,6 +279,20 @@ class DirectedGraph:
                 break
         
         return mst
+    
+    def prim(self):
+        if self.graph:
+            node = list(self.graph)[0]
+            mst = set()
+            mst.add(node)
+            
+            while len(mst) < len(self.graph):
+                listOfPotentialVertices = [item for d in [x[1] for x in self.graph.items() if x[0] in mst] for item in d.items()]
+                print(listOfPotentialVertices)
+                minimumValue = min([item[1] for item in listOfPotentialVertices if item[0] not in mst])
+                mst.add([key for key, value in listOfPotentialVertices if value == minimumValue and key not in mst][0])
+
+            print(mst)
 
 class UnionFind:
     def __init__(self, n):
@@ -324,7 +338,7 @@ directedGraph.addEdge("A", "C", 2)
 directedGraph.addEdge("C", "D", 1)
 directedGraph.addEdge("D", "E", 4)
 # directedGraph.addEdge("E", "C", 5)
-# directedGraph.addEdge("E", "F", 3)
+directedGraph.addEdge("E", "F", 3)
 directedGraph.addEdge("F", "G", 2)
 # directedGraph.addEdge("G", "A", 4)
 directedGraph.addEdge("G", "H", 1)
@@ -349,3 +363,5 @@ uf.union(3,4)
 print(uf.find(2))
 print(uf.rank)
 print(uf.parent)
+
+directedGraph.prim()
