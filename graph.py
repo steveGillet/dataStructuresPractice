@@ -288,7 +288,7 @@ class DirectedGraph:
             
             while len(mst) < len(self.graph):
                 listOfPotentialVertices = [item for d in [x[1] for x in self.graph.items() if x[0] in mst] for item in d.items()]
-                print(listOfPotentialVertices)
+                # print(listOfPotentialVertices)
                 minimumValue = min([item[1] for item in listOfPotentialVertices if item[0] not in mst])
                 mst.add([key for key, value in listOfPotentialVertices if value == minimumValue and key not in mst][0])
 
@@ -319,14 +319,12 @@ class DirectedGraph:
                         if distance[neighbor] > distance[currentNode] + self.graph[currentNode][neighbor]:
                             distance[neighbor] = distance[currentNode] + self.graph[currentNode][neighbor]
                 
-                print(visited)
+                print(distance)
                 path = []
                 currentNode = start
                 while currentNode is not end:
                     path.append(currentNode)
-                    print(self.graph[currentNode].keys())
-                    currentNode = [x for x in self.graph[currentNode].keys() if x in visited][0]
-                    print(currentNode)
+                    currentNode = min(self.graph[currentNode], key=self.graph[currentNode].get)
 
                 return path
 
